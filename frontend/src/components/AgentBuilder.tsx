@@ -78,9 +78,9 @@ export default function AgentBuilder() {
   const handleSubmit = async () => {
     setLoading(true)
     try {
-      await agentApi.create(config)
-      setAlert({ open: true, message: '에이전트가 성공적으로 생성되었습니다!', severity: 'success' })
-      setTimeout(() => navigate('/'), 2000)
+      const response = await agentApi.create(config)
+      setAlert({ open: true, message: '에이전트가 성공적으로 생성되었습니다! 시나리오 페이지로 이동합니다.', severity: 'success' })
+      setTimeout(() => navigate(`/scenario/${response.id}`), 2000)
     } catch (error) {
       setAlert({ open: true, message: '에이전트 생성에 실패했습니다.', severity: 'error' })
     } finally {
@@ -252,7 +252,7 @@ export default function AgentBuilder() {
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 3, color: '#1a202c' }}>
                 DM 시나리오
                 <Typography variant="caption" sx={{ ml: 2, color: '#94a3b8' }}>
-                  (선택사항)
+                  (다음 단계에서 시각적으로 편집 가능)
                 </Typography>
               </Typography>
               <TextField
@@ -263,8 +263,8 @@ export default function AgentBuilder() {
                 multiline
                 rows={8}
                 variant="outlined"
-                placeholder="D&D나 RPG 게임의 시나리오를 작성해주세요..."
-                helperText="DM 역할을 할 때 사용할 배경 스토리나 설정을 입력하세요"
+                placeholder="D&D나 RPG 게임의 시나리오를 작성해주세요. 저장 후 시나리오 빌더에서 노드와 엣지로 변환됩니다..."
+                helperText="텍스트로 시나리오를 입력하면 다음 단계에서 시각적 플로우차트로 변환됩니다"
               />
             </CardContent>
           </Card>
@@ -290,7 +290,7 @@ export default function AgentBuilder() {
             size="large"
             sx={{ borderRadius: 2, px: 4 }}
           >
-            에이전트 저장
+            저장하고 시나리오 편집
           </Button>
         </Box>
         

@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from app.database import engine, Base
-from app.api import agents
+from app.api import agents, chat, scenario
 from dotenv import load_dotenv
 import os
 
@@ -23,7 +24,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# 정적 파일 서빙 (오디오 파일용)
+os.makedirs("/tmp/static/audio", exist_ok=True)
+app.mount("/static", StaticFiles(directory="/tmp/static"), name="static")
+
 app.include_router(agents.router)
+app.include_router(chat.router)
+app.include_router(scenario.router, prefix="/api/scenario", tags=["scenario"])
 
 @app.get("/")
 def root():

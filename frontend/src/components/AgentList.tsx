@@ -161,6 +161,7 @@ export default function AgentList() {
                       size="small" 
                       color="success"
                       sx={{ borderRadius: 2 }}
+                      onClick={() => navigate(`/chat/${agent.id}`)}
                     >
                       테스트
                     </Button>

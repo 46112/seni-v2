@@ -1,12 +1,31 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List, Dict, Any
 from datetime import datetime
+
+class NodeData(BaseModel):
+    id: str
+    type: str  # 'start', 'message', 'condition', 'action', 'end'
+    label: str
+    data: Dict[str, Any]
+    position: Dict[str, float]
+
+class EdgeData(BaseModel):
+    id: str
+    source: str
+    target: str
+    label: Optional[str] = None
+    type: Optional[str] = 'default'
+
+class ScenarioFlow(BaseModel):
+    nodes: List[NodeData]
+    edges: List[EdgeData]
 
 class AgentBase(BaseModel):
     name: str
     description: str
     prompt: Optional[str] = None
     scenario: Optional[str] = None
+    scenario_flow: Optional[ScenarioFlow] = None
     stt_module: Optional[str] = None
     emotion_module: Optional[str] = None
     llm_module: Optional[str] = None
@@ -26,3 +45,11 @@ class Agent(AgentBase):
 
     class Config:
         from_attributes = True
+
+class ScenarioParseRequest(BaseModel):
+    text: str
+    agent_id: Optional[int] = None
+
+class ChatMessage(BaseModel):
+    message: str
+    agent_id: int

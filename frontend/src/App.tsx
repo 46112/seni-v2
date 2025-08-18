@@ -3,6 +3,8 @@ import { ThemeProvider, createTheme } from '@mui/material/styles'
 import CssBaseline from '@mui/material/CssBaseline'
 import AgentBuilder from './components/AgentBuilder'
 import AgentList from './components/AgentList'
+import AgentChat from './components/AgentChat'
+import ScenarioBuilder from './components/ScenarioBuilder'
 import Navbar from './components/Navbar'
 
 const theme = createTheme({
@@ -19,10 +21,11 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
-        <Navbar />
         <Routes>
-          <Route path="/" element={<AgentList />} />
-          <Route path="/builder" element={<AgentBuilder />} />
+          <Route path="/" element={<><Navbar /><AgentList /></>} />
+          <Route path="/builder" element={<><Navbar /><AgentBuilder /></>} />
+          <Route path="/scenario/:agentId" element={<><Navbar /><ScenarioBuilder agentId={1} /></>} />
+          <Route path="/chat/:agentId" element={<AgentChat />} />
         </Routes>
       </Router>
     </ThemeProvider>
