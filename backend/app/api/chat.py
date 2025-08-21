@@ -43,6 +43,51 @@ class ChatResponse(BaseModel):
     emotion: Optional[str] = None
     audio_url: Optional[str] = None
 
+class GreetingResponse(BaseModel):
+    greeting: str
+    emotion: Optional[str] = None
+
+@router.get("/{agent_id}/greeting", response_model=GreetingResponse)
+async def get_agent_greeting(
+    agent_id: int,
+    db: Session = Depends(get_db)
+):
+    # 에이전트 정보 조회
+    agent = crud.get_agent(db, agent_id)
+    if not agent:
+        raise HTTPException(status_code=404, detail="Agent not found")
+    
+    try:
+        # LLM을 통한 맞춤형 인사말 생성
+        llm_service = LLMService(agent.llm_module)
+        
+        # 시스템 프롬프트와 시나리오 조합
+        system_prompt = agent.prompt or "당신은 도움이 되는 AI 어시스턴트입니다."
+        if agent.scenario:
+            system_prompt += f"\n\n시나리오: {agent.scenario}"
+        
+        # 인사말 생성을 위한 프롬프트
+        greeting_prompt = "사용자가 처음 대화를 시작했습니다. 당신의 성격과 역할에 맞는 짧은 인사말을 한 문장으로 해주세요. 자기소개와 함께 도움을 제공할 준비가 되었음을 알려주세요."
+        
+        greeting_text = llm_service.generate_response(
+            message=greeting_prompt,
+            system_prompt=system_prompt,
+            emotion=None
+        )
+        
+        return GreetingResponse(
+            greeting=greeting_text,
+            emotion=None
+        )
+        
+    except Exception as e:
+        print(f"Greeting generation error: {e}")
+        # 에러 발생시 기본 인사말 반환
+        return GreetingResponse(
+            greeting=f"안녕하세요! {agent.name}입니다. 무엇을 도와드릴까요?",
+            emotion=None
+        )
+
 @router.post("/{agent_id}", response_model=ChatResponse)
 async def chat_with_agent(
     agent_id: int, 

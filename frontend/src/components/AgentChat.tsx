@@ -63,18 +63,36 @@ export default function AgentChat() {
           const data = await agentApi.getById(Number(agentId))
           if (mounted) {
             setAgent(data)
-            // 메시지가 없을 때만 환영 메시지 추가
-            setMessages(prev => {
-              if (prev.length === 0) {
-                return [{
-                  id: Date.now().toString(),
-                  type: 'agent' as const,
-                  content: `안녕하세요! ${data.name}입니다. 무엇을 도와드릴까요?`,
-                  timestamp: new Date()
-                }]
+            
+            // 메시지가 없을 때만 맞춤형 환영 메시지 가져오기
+            if (messages.length === 0) {
+              try {
+                // 에이전트별 맞춤 인사말 API 호출
+                const greetingResponse = await fetch(`http://localhost:8000/api/chat/${agentId}/greeting`)
+                const greetingData = await greetingResponse.json()
+                
+                if (mounted) {
+                  setMessages([{
+                    id: Date.now().toString(),
+                    type: 'agent' as const,
+                    content: greetingData.greeting,
+                    timestamp: new Date(),
+                    emotion: greetingData.emotion
+                  }])
+                }
+              } catch (greetingError) {
+                // 인사말 API 실패시 기본 인사말 사용
+                console.error('Failed to get greeting:', greetingError)
+                if (mounted) {
+                  setMessages([{
+                    id: Date.now().toString(),
+                    type: 'agent' as const,
+                    content: `안녕하세요! ${data.name}입니다. 무엇을 도와드릴까요?`,
+                    timestamp: new Date()
+                  }])
+                }
               }
-              return prev
-            })
+            }
           }
         } catch (error) {
           console.error('Failed to load agent:', error)
