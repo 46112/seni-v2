@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ReactFlow, {
   Controls,
   Background,
@@ -58,6 +59,7 @@ const nodeTypes = {
 };
 
 const ScenarioBuilder: React.FC<ScenarioBuilderProps> = ({ agentId, initialScenario, llmModule = 'gpt' }) => {
+  const navigate = useNavigate();
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [scenarioText, setScenarioText] = useState(initialScenario || '');
@@ -271,6 +273,11 @@ const ScenarioBuilder: React.FC<ScenarioBuilderProps> = ({ agentId, initialScena
         scenario_flow: flowData
       });
       setSuccess('시나리오 플로우가 저장되었습니다!');
+      
+      // 저장 성공 후 에이전트 목록으로 이동
+      setTimeout(() => {
+        navigate('/');
+      }, 1000);
     } catch (err) {
       setError('플로우 저장에 실패했습니다.');
       console.error(err);

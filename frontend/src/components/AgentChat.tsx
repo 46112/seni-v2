@@ -55,26 +55,46 @@ export default function AgentChat() {
   const audioChunks = useRef<Blob[]>([])
 
   useEffect(() => {
-    if (agentId) {
-      loadAgent()
+    let mounted = true
+    
+    const loadAgentData = async () => {
+      if (agentId && mounted) {
+        try {
+          const data = await agentApi.getById(Number(agentId))
+          if (mounted) {
+            setAgent(data)
+            // 메시지가 없을 때만 환영 메시지 추가
+            setMessages(prev => {
+              if (prev.length === 0) {
+                return [{
+                  id: Date.now().toString(),
+                  type: 'agent' as const,
+                  content: `안녕하세요! ${data.name}입니다. 무엇을 도와드릴까요?`,
+                  timestamp: new Date()
+                }]
+              }
+              return prev
+            })
+          }
+        } catch (error) {
+          console.error('Failed to load agent:', error)
+          if (mounted) {
+            navigate('/')
+          }
+        }
+      }
     }
-  }, [agentId])
+    
+    loadAgentData()
+    
+    return () => {
+      mounted = false
+    }
+  }, [agentId, navigate])
 
   useEffect(() => {
     scrollToBottom()
   }, [messages])
-
-  const loadAgent = async () => {
-    try {
-      const data = await agentApi.getById(Number(agentId))
-      setAgent(data)
-      // 첫 번째 메시지로 환영 메시지 추가
-      addMessage('agent', `안녕하세요! ${data.name}입니다. 무엇을 도와드릴까요?`)
-    } catch (error) {
-      console.error('Failed to load agent:', error)
-      navigate('/')
-    }
-  }
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
