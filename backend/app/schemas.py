@@ -4,8 +4,7 @@ from datetime import datetime
 
 class NodeData(BaseModel):
     id: str
-    type: str  # 'start', 'message', 'condition', 'action', 'end'
-    label: str
+    type: str  # 'start', 'dialog', 'decision', 'action', 'end'
     data: Dict[str, Any]
     position: Dict[str, float]
 
@@ -25,7 +24,7 @@ class AgentBase(BaseModel):
     description: str
     prompt: Optional[str] = None
     scenario: Optional[str] = None
-    scenario_flow: Optional[ScenarioFlow] = None
+    scenario_flow: Optional[Dict[str, Any]] = None
     stt_module: Optional[str] = None
     emotion_module: Optional[str] = None
     llm_module: Optional[str] = None
@@ -34,9 +33,16 @@ class AgentBase(BaseModel):
 class AgentCreate(AgentBase):
     pass
 
-class AgentUpdate(AgentBase):
+class AgentUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
+    prompt: Optional[str] = None
+    scenario: Optional[str] = None
+    scenario_flow: Optional[Dict[str, Any]] = None
+    stt_module: Optional[str] = None
+    emotion_module: Optional[str] = None
+    llm_module: Optional[str] = None
+    tts_module: Optional[str] = None
 
 class Agent(AgentBase):
     id: int
